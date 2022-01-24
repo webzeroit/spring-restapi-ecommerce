@@ -2,53 +2,53 @@ package com.ecommerce.domain.dto.updated;
 
 import java.io.Serializable;
 
-public class UpdatedProduct implements Serializable{
+public class UpdatedProduct implements Serializable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	
-	private String name;
-	private Double price;
-	private String description;
-	
-	public UpdatedProduct() {
-		
-	}
-	
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
 
-	public UpdatedProduct(String name, Double price, String description) {
-		super();
-		this.name = name;
-		this.price = price;
-		this.description = description;
-	}
+    private String name;
+    private Double price;
+    private String description;
+
+    public UpdatedProduct() {
+
+    }
 
 
-	public String getName() {
-		return name;
-	}
+    public UpdatedProduct(String name, Double price, String description) {
+        super();
+        this.name = name;
+        this.price = price;
+        this.description = description;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
 
-	public Double getPrice() {
-		return price;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setPrice(Double price) {
-		this.price = price;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public Double getPrice() {
+        return price;
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
-	
+    public void setPrice(Double price) {
+        this.price = price;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
 
 }

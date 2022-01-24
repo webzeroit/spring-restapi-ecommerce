@@ -1,127 +1,117 @@
 package com.ecommerce.domain.users;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-
+import com.ecommerce.domain.Order;
 import com.ecommerce.domain.Product;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.ecommerce.domain.Order;
+
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "TB_SELLERS")
 public class Seller extends User {
 
-	public Seller() {
-		setType("Seller");
-		setNumberOfSells(0);
-		setHowMuchMoneyThisSellerHasSold(0.0);
-	}
+    public Seller() {
+        setType("Seller");
+        setNumberOfSells(0);
+        setHowMuchMoneyThisSellerHasSold(0.0);
+    }
 
-	private List<Product> ownProducts = new ArrayList<>();
-	private List<Order> orders;
-	
-	@Column
-	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
-	private Integer numberOfSells;
+    private List<Product> ownProducts = new ArrayList<>();
+    private List<Order> orders;
 
-	@Column
-	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
-	private Double howMuchMoneyThisSellerHasSold;
-	
-	
-	@Override
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	public Integer getId() {
-		// TODO Auto-generated method stub
-		return super.getId();
-	}
+    @Column
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private Integer numberOfSells;
 
-	@Column
-	@Override
-	public String getName() {
-		// TODO Auto-generated method stub
-		return super.getName();
-	}
+    @Column
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private Double howMuchMoneyThisSellerHasSold;
 
-	@Column(unique = true)
-	@Override
-	public String getEmail() {
-		// TODO Auto-generated method stub
-		return super.getEmail();
-	}
 
-	@Column
-	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-	@Override
-	public String getPassword() {
-		// TODO Auto-generated method stub
-		return super.getPassword();
-	}
+    @Override
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public Integer getId() {
+        // TODO Auto-generated method stub
+        return super.getId();
+    }
 
-	@Column
-	@Override
-	public String getType() {
-		// TODO Auto-generated method stub
-		return super.getType();
-	}
+    @Column
+    @Override
+    public String getName() {
+        // TODO Auto-generated method stub
+        return super.getName();
+    }
 
-	@JsonIgnore
-	@OneToMany(mappedBy = "productOwner")
-	public List<Product> getOwnProducts() {
-		return ownProducts;
-	}
+    @Column(unique = true)
+    @Override
+    public String getEmail() {
+        // TODO Auto-generated method stub
+        return super.getEmail();
+    }
 
-	public void setOwnProducts(List<Product> ownProducts) {
-		this.ownProducts = ownProducts;
-	}
-	
+    @Column
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Override
+    public String getPassword() {
+        // TODO Auto-generated method stub
+        return super.getPassword();
+    }
 
-	@JsonIgnore
-	@OneToMany(mappedBy = "seller")
-	public List<Order> getOrders() {
-		return orders;
-	}
+    @Column
+    @Override
+    public String getType() {
+        // TODO Auto-generated method stub
+        return super.getType();
+    }
 
-	public void setOrders(List<Order> orders) {
-		this.orders = orders;
-	}
+    @JsonIgnore
+    @OneToMany(mappedBy = "productOwner")
+    public List<Product> getOwnProducts() {
+        return ownProducts;
+    }
 
-	public Integer getNumberOfSells() {
-		return numberOfSells;
-	}
+    public void setOwnProducts(List<Product> ownProducts) {
+        this.ownProducts = ownProducts;
+    }
 
-	public void addNumberOfSells() {
-		this.numberOfSells = this.numberOfSells + 1;
-	}
 
-	public void setNumberOfSells(Integer numberOfSells) {
-		this.numberOfSells = numberOfSells;
-	}
+    @JsonIgnore
+    @OneToMany(mappedBy = "seller")
+    public List<Order> getOrders() {
+        return orders;
+    }
 
-	public Double getHowMuchMoneyThisSellerHasSold() {
-		return howMuchMoneyThisSellerHasSold;
-	}
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
+    }
 
-	public void setHowMuchMoneyThisSellerHasSold(Double howMuchMoneyThisSellerHasSold) {
-		this.howMuchMoneyThisSellerHasSold = howMuchMoneyThisSellerHasSold;
-	}
-	
-	public void addSoldMoneyWhenSellerSellAProduct(Double productPrice) {
-		this.howMuchMoneyThisSellerHasSold += productPrice;
-	}
-	
-	
-	
-	
+    public Integer getNumberOfSells() {
+        return numberOfSells;
+    }
+
+    public void addNumberOfSells() {
+        this.numberOfSells = this.numberOfSells + 1;
+    }
+
+    public void setNumberOfSells(Integer numberOfSells) {
+        this.numberOfSells = numberOfSells;
+    }
+
+    public Double getHowMuchMoneyThisSellerHasSold() {
+        return howMuchMoneyThisSellerHasSold;
+    }
+
+    public void setHowMuchMoneyThisSellerHasSold(Double howMuchMoneyThisSellerHasSold) {
+        this.howMuchMoneyThisSellerHasSold = howMuchMoneyThisSellerHasSold;
+    }
+
+    public void addSoldMoneyWhenSellerSellAProduct(Double productPrice) {
+        this.howMuchMoneyThisSellerHasSold += productPrice;
+    }
+
 
 }

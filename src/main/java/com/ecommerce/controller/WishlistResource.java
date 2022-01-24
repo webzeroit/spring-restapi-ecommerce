@@ -1,22 +1,14 @@
 package com.ecommerce.controller;
 
-import java.util.Set;
-
 import com.ecommerce.domain.Product;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.ecommerce.services.WishlistService;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Set;
 
 @RestController
 @Api(value = "Wishlist resource")
@@ -24,32 +16,32 @@ import io.swagger.annotations.ApiOperation;
 @RequestMapping
 public class WishlistResource {
 
-	@Autowired
-	private WishlistService service;
+    @Autowired
+    private WishlistService service;
 
-	@ApiOperation(value = "Return user's wishlist")
-	@GetMapping("/wishlist")
-	public ResponseEntity<Set<Product>> returnWishlist() {
+    @ApiOperation(value = "Return user's wishlist")
+    @GetMapping("/wishlist")
+    public ResponseEntity<Set<Product>> returnWishlist() {
 
-		
-		return ResponseEntity.ok().body(service.findAll());
-	}
 
-	@PostMapping("/wishlist/{productId}")
-	@ApiOperation(value = "Mark product as wished")
-	public ResponseEntity<Void> maskProductAsWished(@PathVariable Integer productId) {
+        return ResponseEntity.ok().body(service.findAll());
+    }
 
-		service.markProductAsWished(productId);
-	
-		return ResponseEntity.ok().build();
-	}
-	
-	@DeleteMapping("/wishlist/{productId}")
-	@ApiOperation(value = "Delete a product from wishlist")
-	public ResponseEntity<Void> delete(@PathVariable Integer productId){
-		service.delete(productId);
-	
-		return ResponseEntity.noContent().build();
-	}
+    @PostMapping("/wishlist/{productId}")
+    @ApiOperation(value = "Mark product as wished")
+    public ResponseEntity<Void> maskProductAsWished(@PathVariable Integer productId) {
+
+        service.markProductAsWished(productId);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/wishlist/{productId}")
+    @ApiOperation(value = "Delete a product from wishlist")
+    public ResponseEntity<Void> delete(@PathVariable Integer productId) {
+        service.delete(productId);
+
+        return ResponseEntity.noContent().build();
+    }
 
 }

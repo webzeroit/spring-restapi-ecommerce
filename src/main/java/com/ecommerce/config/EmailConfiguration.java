@@ -8,8 +8,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class EmailConfiguration {
 
-	@Bean
-	public EmailService emailService() {
-		return new SmtpEmailService();
-	}
+    @Bean
+    public EmailService emailService() {
+        return new SmtpEmailService();
+    }
 }

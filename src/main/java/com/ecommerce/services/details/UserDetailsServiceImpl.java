@@ -1,7 +1,5 @@
 package com.ecommerce.services.details;
 
-import java.util.Arrays;
-
 import com.ecommerce.domain.users.Client;
 import com.ecommerce.domain.users.Seller;
 import com.ecommerce.repositories.ClientRepository;
@@ -14,41 +12,43 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-	@Autowired
-	private ClientRepository clientRepo;
+    @Autowired
+    private ClientRepository clientRepo;
 
-	@Autowired
-	private SellerRepository sellerRepo;
+    @Autowired
+    private SellerRepository sellerRepo;
 
-	@Override
-	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
-		Client cli = clientRepo.findByEmail(email);
+        Client cli = clientRepo.findByEmail(email);
 
-		if (cli == null) {
-			Seller sel = sellerRepo.findByEmail(email);
+        if (cli == null) {
+            Seller sel = sellerRepo.findByEmail(email);
 
-			SellerSS selSS = new SellerSS();
+            SellerSS selSS = new SellerSS();
 
-			selSS.setId(sel.getId());
-			selSS.setEmail(sel.getEmail());
-			selSS.setPassword(sel.getPassword());
-			selSS.setAuthorities(Arrays.asList(sel.getType()));
+            selSS.setId(sel.getId());
+            selSS.setEmail(sel.getEmail());
+            selSS.setPassword(sel.getPassword());
+            selSS.setAuthorities(Arrays.asList(sel.getType()));
 
-			return selSS;
-		}
+            return selSS;
+        }
 
-		ClientSS cliSS = new ClientSS();
+        ClientSS cliSS = new ClientSS();
 
-		cliSS.setId(cli.getId());
-		cliSS.setEmail(cli.getEmail());
-		cliSS.setPassword(cli.getPassword());
-		cliSS.setAuthorities(Arrays.asList(cli.getType()));
+        cliSS.setId(cli.getId());
+        cliSS.setEmail(cli.getEmail());
+        cliSS.setPassword(cli.getPassword());
+        cliSS.setAuthorities(Arrays.asList(cli.getType()));
 
-		return cliSS;
-	}
+        return cliSS;
+    }
 
 }

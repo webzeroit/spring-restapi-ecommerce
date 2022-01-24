@@ -1,26 +1,17 @@
 package com.ecommerce.controller;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.ecommerce.domain.dto.ranking.ClientRankingDTO;
 import com.ecommerce.domain.dto.updated.UpdatedClient;
 import com.ecommerce.domain.users.Client;
 import com.ecommerce.services.ClientService;
 import com.ecommerce.services.RankingService;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping
@@ -28,58 +19,58 @@ import io.swagger.annotations.ApiOperation;
 @CrossOrigin
 public class ClientResource {
 
-	@Autowired
-	private ClientService service;
-	
-	@Autowired
-	private RankingService ranking;
+    @Autowired
+    private ClientService service;
 
-	@GetMapping("/clients")
-	@ApiOperation(value = "Return all clients")
-	public ResponseEntity<List<Client>> findAll() {
+    @Autowired
+    private RankingService ranking;
 
-		return ResponseEntity.ok().body(service.findAll());
-	}
+    @GetMapping("/clients")
+    @ApiOperation(value = "Return all clients")
+    public ResponseEntity<List<Client>> findAll() {
 
-	@ApiOperation(value = "Return your own profile as Client")
-	@GetMapping("/client")
-	public ResponseEntity<Client> find() {
+        return ResponseEntity.ok().body(service.findAll());
+    }
 
-		Client obj = service.returnClientWithoutParsingTheId();
-		return ResponseEntity.ok().body(obj);
-	}
-	
-	@ApiOperation(value = "Create a client")
-	@PostMapping("/create/client")
-	public ResponseEntity<Client> insert(@RequestBody Client obj) {
+    @ApiOperation(value = "Return your own profile as Client")
+    @GetMapping("/client")
+    public ResponseEntity<Client> find() {
 
-		service.insert(obj);
+        Client obj = service.returnClientWithoutParsingTheId();
+        return ResponseEntity.ok().body(obj);
+    }
 
-		return ResponseEntity.ok().body(obj);
-	}
+    @ApiOperation(value = "Create a client")
+    @PostMapping("/create/client")
+    public ResponseEntity<Client> insert(@RequestBody Client obj) {
 
-	@PutMapping("/update/client")
-	@ApiOperation(value = "Update a client ")
-	public ResponseEntity<Client> update(@RequestBody UpdatedClient obj){
+        service.insert(obj);
 
-		Client cli =  service.update(obj);
-		return ResponseEntity.ok().body(cli);
-	}
+        return ResponseEntity.ok().body(obj);
+    }
 
-	@DeleteMapping("/delete/client")
-	@ApiOperation(value = "Delete a client")
-	public ResponseEntity<Void> delete() {
-		service.delete();
+    @PutMapping("/update/client")
+    @ApiOperation(value = "Update a client ")
+    public ResponseEntity<Client> update(@RequestBody UpdatedClient obj) {
 
-		return ResponseEntity.noContent().build();
-	}
-	
+        Client cli = service.update(obj);
+        return ResponseEntity.ok().body(cli);
+    }
 
-	@ApiOperation(value = "Return a list of clients who buys the most")
-	@GetMapping("/clients/ranking")
-	public ResponseEntity<List<ClientRankingDTO>> returnRankingClient() {
-		
-		
-		return ResponseEntity.ok().body(ranking.returnRankingClient());
-	}
+    @DeleteMapping("/delete/client")
+    @ApiOperation(value = "Delete a client")
+    public ResponseEntity<Void> delete() {
+        service.delete();
+
+        return ResponseEntity.noContent().build();
+    }
+
+
+    @ApiOperation(value = "Return a list of clients who buys the most")
+    @GetMapping("/clients/ranking")
+    public ResponseEntity<List<ClientRankingDTO>> returnRankingClient() {
+
+
+        return ResponseEntity.ok().body(ranking.returnRankingClient());
+    }
 }

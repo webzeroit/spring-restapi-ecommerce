@@ -4,29 +4,29 @@ import java.io.Serializable;
 
 public class TypeDTO implements Serializable {
 
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	private String type;
-	
-	public TypeDTO() {
-		
-	}
 
-	public TypeDTO(String type) {
-		super();
-		this.type = type;
-	}
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+    private String type;
 
-	public String getType() {
-		return type;
-	}
+    public TypeDTO() {
 
-	public void setType(String type) {
-		this.type = type;
-	}
-	
-	
+    }
+
+    public TypeDTO(String type) {
+        super();
+        this.type = type;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+
 }

@@ -1,13 +1,8 @@
 package com.ecommerce.services;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-
-import javax.transaction.Transactional;
-
 import com.ecommerce.domain.dto.updated.UpdatedSeller;
 import com.ecommerce.domain.users.Seller;
+import com.ecommerce.exceptions.*;
 import com.ecommerce.repositories.ClientRepository;
 import com.ecommerce.repositories.SellerRepository;
 import com.ecommerce.security.SellerSS;
@@ -15,118 +10,115 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.ecommerce.exceptions.AuthorizationException;
-import com.ecommerce.exceptions.ClientOrSellerHasThisSameEntryException;
-import com.ecommerce.exceptions.DuplicateEntryException;
-import com.ecommerce.exceptions.ObjectNotFoundException;
-import com.ecommerce.exceptions.UserHasProductsRelationshipsException;
+import javax.transaction.Transactional;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 public class SellerService {
 
-	@Autowired
-	private SellerRepository sellerRepo;
+    @Autowired
+    private SellerRepository sellerRepo;
 
-	@Autowired
-	private ClientRepository clientRepo;
+    @Autowired
+    private ClientRepository clientRepo;
 
-	@Autowired
-	private BCryptPasswordEncoder passwordEncoder;
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
-	public Seller findById(Integer id) {
+    public Seller findById(Integer id) {
 
-		SellerSS user = UserService.sellerAuthenticated();
+        SellerSS user = UserService.sellerAuthenticated();
 
-		if (user == null || !user.getId().equals(id)) {
-			throw new AuthorizationException();
-		}
-		Optional<Seller> obj = sellerRepo.findById(id);
+        if (user == null || !user.getId().equals(id)) {
+            throw new AuthorizationException();
+        }
+        Optional<Seller> obj = sellerRepo.findById(id);
 
-		try {
-			return obj.get();
-		} catch (NoSuchElementException e) {
-			throw new ObjectNotFoundException();
-		}
+        try {
+            return obj.get();
+        } catch (NoSuchElementException e) {
+            throw new ObjectNotFoundException();
+        }
 
-	}
-	
-	public Seller returnClientWithoutParsingTheId() {
-		SellerSS user = UserService.sellerAuthenticated();
+    }
 
-		if (user == null) {
-			throw new AuthorizationException();
-		}
+    public Seller returnClientWithoutParsingTheId() {
+        SellerSS user = UserService.sellerAuthenticated();
 
-		try {
-			return findById(user.getId());
-		} catch (NoSuchElementException e) {
-			throw new ObjectNotFoundException();
-		}
+        if (user == null) {
+            throw new AuthorizationException();
+        }
 
-	}
+        try {
+            return findById(user.getId());
+        } catch (NoSuchElementException e) {
+            throw new ObjectNotFoundException();
+        }
 
-	public List<Seller> findAll() {
-		return sellerRepo.findAll();
-	}
+    }
 
-	@Transactional
-	public Seller insert(Seller obj) {
-		obj.setId(null);
-		obj.setPassword(passwordEncoder.encode(obj.getPassword()));
+    public List<Seller> findAll() {
+        return sellerRepo.findAll();
+    }
 
-		if (clientRepo.findByEmail(obj.getEmail()) == null) {
-			try {
-				return sellerRepo.save(obj);
-			} catch (Exception e) {
-				// TODO: handle exception
-				throw new DuplicateEntryException();
-			}
-		}
+    @Transactional
+    public Seller insert(Seller obj) {
+        obj.setId(null);
+        obj.setPassword(passwordEncoder.encode(obj.getPassword()));
 
-		throw new ClientOrSellerHasThisSameEntryException("client");
+        if (clientRepo.findByEmail(obj.getEmail()) == null) {
+            try {
+                return sellerRepo.save(obj);
+            } catch (Exception e) {
+                // TODO: handle exception
+                throw new DuplicateEntryException();
+            }
+        }
 
-	}
+        throw new ClientOrSellerHasThisSameEntryException("client");
 
-	@Transactional
-	public Seller update(UpdatedSeller obj) {
+    }
 
-		SellerSS user = UserService.sellerAuthenticated();
+    @Transactional
+    public Seller update(UpdatedSeller obj) {
 
-		Seller sel = findById(user.getId());
+        SellerSS user = UserService.sellerAuthenticated();
 
-		if (user == null || !user.getId().equals(sel.getId())) {
-			throw new AuthorizationException();
-		}
+        Seller sel = findById(user.getId());
 
-		sel.setEmail(obj.getEmail());
-		sel.setName(obj.getName());
-		sel.setPassword(passwordEncoder.encode(obj.getPassword()));
+        if (user == null || !user.getId().equals(sel.getId())) {
+            throw new AuthorizationException();
+        }
 
-		if (clientRepo.findByEmail(sel.getEmail()) == null) {
-			try {
-				return sellerRepo.save(sel);
-			} catch (Exception e) {
-				throw new DuplicateEntryException();
-			}
-		}
+        sel.setEmail(obj.getEmail());
+        sel.setName(obj.getName());
+        sel.setPassword(passwordEncoder.encode(obj.getPassword()));
 
-		throw new ClientOrSellerHasThisSameEntryException("client");
-	}
+        if (clientRepo.findByEmail(sel.getEmail()) == null) {
+            try {
+                return sellerRepo.save(sel);
+            } catch (Exception e) {
+                throw new DuplicateEntryException();
+            }
+        }
 
-	public void delete() {
-		SellerSS user = UserService.sellerAuthenticated();
+        throw new ClientOrSellerHasThisSameEntryException("client");
+    }
 
-		Seller sel = findById(user.getId());
+    public void delete() {
+        SellerSS user = UserService.sellerAuthenticated();
 
-		if (sel.getNumberOfSells() == 0) {
-			sellerRepo.deleteById(user.getId());
+        Seller sel = findById(user.getId());
 
-		}
+        if (sel.getNumberOfSells() == 0) {
+            sellerRepo.deleteById(user.getId());
 
-		else {
-			throw new UserHasProductsRelationshipsException();
+        } else {
+            throw new UserHasProductsRelationshipsException();
 
-		}
+        }
 
-	}
+    }
 }

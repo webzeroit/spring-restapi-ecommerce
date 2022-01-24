@@ -1,7 +1,5 @@
 package com.ecommerce.config;
 
-import java.util.Arrays;
-
 import com.ecommerce.security.JWTUtil;
 import com.ecommerce.security.filters.JWTAuthenticationFilter;
 import com.ecommerce.security.filters.JWTAuthorizationFilter;
@@ -19,6 +17,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity

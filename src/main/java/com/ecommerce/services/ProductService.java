@@ -1,204 +1,198 @@
 package com.ecommerce.services;
 
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-
-import javax.transaction.Transactional;
-
+import com.ecommerce.domain.Order;
 import com.ecommerce.domain.Product;
 import com.ecommerce.domain.dto.updated.UpdatedProduct;
 import com.ecommerce.domain.users.Client;
 import com.ecommerce.domain.users.Seller;
-import com.ecommerce.repositories.OrderRepository;
-import com.ecommerce.security.SellerSS;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import com.ecommerce.domain.Order;
 import com.ecommerce.exceptions.AuthorizationException;
 import com.ecommerce.exceptions.ObjectNotFoundException;
 import com.ecommerce.exceptions.ProductHasAlreadyBeenSold;
+import com.ecommerce.repositories.OrderRepository;
 import com.ecommerce.repositories.ProductRepository;
 import com.ecommerce.security.ClientSS;
+import com.ecommerce.security.SellerSS;
 import com.ecommerce.services.email.EmailService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Service
 public class ProductService {
 
-	@Autowired
-	private ProductRepository productRepo;
+    @Autowired
+    private ProductRepository productRepo;
 
-	@Autowired
-	private OrderRepository orderRepo;
+    @Autowired
+    private OrderRepository orderRepo;
 
-	@Autowired
-	private SellerService sellerService;
+    @Autowired
+    private SellerService sellerService;
 
-	@Autowired
-	private ClientService clientService;
+    @Autowired
+    private ClientService clientService;
 
-	@Autowired
-	private EmailService emailService;
+    @Autowired
+    private EmailService emailService;
 
-	@Autowired
-	private WishlistService wishlistService;
+    @Autowired
+    private WishlistService wishlistService;
 
-	public Product findById(Integer id) {
-		Optional<Product> obj = productRepo.findById(id);
+    public Product findById(Integer id) {
+        Optional<Product> obj = productRepo.findById(id);
 
-		try {
-			return obj.get();
-		} catch (NoSuchElementException e) {
-			throw new ObjectNotFoundException();
-		}
+        try {
+            return obj.get();
+        } catch (NoSuchElementException e) {
+            throw new ObjectNotFoundException();
+        }
 
-	}
+    }
 
-	@Transactional
-	public Product insert(Product obj) {
+    @Transactional
+    public Product insert(Product obj) {
 
-		SellerSS user = UserService.sellerAuthenticated();
+        SellerSS user = UserService.sellerAuthenticated();
 
-		obj.setId(null);
-		obj.setProductOwner(sellerService.findById(user.getId()));
-		obj.setHasBeenSold("Unsold");
-		return productRepo.save(obj);
+        obj.setId(null);
+        obj.setProductOwner(sellerService.findById(user.getId()));
+        obj.setHasBeenSold("Unsold");
+        return productRepo.save(obj);
 
-	}
+    }
 
-	// verify if its product owner
-	@Transactional
-	public Product update(UpdatedProduct obj, Integer productId) {
-		SellerSS user = UserService.sellerAuthenticated();
-		Seller seller = sellerService.findById(user.getId());
-		Product product = findById(productId);
-		
+    // verify if its product owner
+    @Transactional
+    public Product update(UpdatedProduct obj, Integer productId) {
+        SellerSS user = UserService.sellerAuthenticated();
+        Seller seller = sellerService.findById(user.getId());
+        Product product = findById(productId);
 
-		if (!product.getProductOwner().equals(seller)) {
-			throw new AuthorizationException("You're not owner of this product");
-		}
-		if (Product.isSold(findById(product.getId()))) {
-			throw new ProductHasAlreadyBeenSold();
-		}
-		product.setName(obj.getName());
-		product.setDescription(obj.getDescription());
-		product.setPrice(obj.getPrice());
 
-		return productRepo.save(product);
+        if (!product.getProductOwner().equals(seller)) {
+            throw new AuthorizationException("You're not owner of this product");
+        }
+        if (Product.isSold(findById(product.getId()))) {
+            throw new ProductHasAlreadyBeenSold();
+        }
+        product.setName(obj.getName());
+        product.setDescription(obj.getDescription());
+        product.setPrice(obj.getPrice());
 
-	}
+        return productRepo.save(product);
 
-	public void delete(Integer id) {
-		SellerSS user = UserService.sellerAuthenticated();
-		Seller seller = sellerService.findById(user.getId());
-		Product obj = findById(id);
+    }
 
-		if (!obj.getProductOwner().equals(seller)) {
-			throw new AuthorizationException("You're not owner of this product");
-		}
-		if (Product.isSold(findById(id))) {
-			throw new ProductHasAlreadyBeenSold();
-		}
-		productRepo.deleteById(id);
+    public void delete(Integer id) {
+        SellerSS user = UserService.sellerAuthenticated();
+        Seller seller = sellerService.findById(user.getId());
+        Product obj = findById(id);
 
-	}
+        if (!obj.getProductOwner().equals(seller)) {
+            throw new AuthorizationException("You're not owner of this product");
+        }
+        if (Product.isSold(findById(id))) {
+            throw new ProductHasAlreadyBeenSold();
+        }
+        productRepo.deleteById(id);
 
-	public List<Product> findAll() {
+    }
 
-		return productRepo.findByHasBeenSold("Unsold");
-	}
-	
-	public List<Product> findOwnProducts() {
-		
-		SellerSS user = UserService.sellerAuthenticated();
-		Seller seller = sellerService.findById(user.getId());
-		
+    public List<Product> findAll() {
 
-		return seller.getOwnProducts();
-	}
+        return productRepo.findByHasBeenSold("Unsold");
+    }
 
-	@Transactional
-	public Product buyProduct(Integer productId) {
+    public List<Product> findOwnProducts() {
 
-		if (Product.isSold(findById(productId))) {
-			throw new ProductHasAlreadyBeenSold();
-		}
+        SellerSS user = UserService.sellerAuthenticated();
+        Seller seller = sellerService.findById(user.getId());
 
-		ClientSS user = UserService.clientAuthenticated();
-		Client buyer = clientService.findById(user.getId());
-		Product boughtProduct = findById(productId);
 
-		buyer.setBoughtProducts(Arrays.asList(boughtProduct));
-		boughtProduct.setBuyerOfTheProduct(buyer);
-		boughtProduct.setHasBeenSold("Sold");
+        return seller.getOwnProducts();
+    }
 
-		// method to add: number of buys and sells | money spent and sold
-		addNumberOfBuysAndSellsAndMoneySoldAndSpent(boughtProduct, buyer);
+    @Transactional
+    public Product buyProduct(Integer productId) {
 
-		// remove product from wishList
-		threadRemoveProductFromWishlist(boughtProduct);
+        if (Product.isSold(findById(productId))) {
+            throw new ProductHasAlreadyBeenSold();
+        }
 
-		// thread to send email
-		threadSendEmail(boughtProduct);
+        ClientSS user = UserService.clientAuthenticated();
+        Client buyer = clientService.findById(user.getId());
+        Product boughtProduct = findById(productId);
 
-		// Save order entity
-		threadSaveOrder(boughtProduct);
+        buyer.setBoughtProducts(Arrays.asList(boughtProduct));
+        boughtProduct.setBuyerOfTheProduct(buyer);
+        boughtProduct.setHasBeenSold("Sold");
 
-		return productRepo.save(boughtProduct);
+        // method to add: number of buys and sells | money spent and sold
+        addNumberOfBuysAndSellsAndMoneySoldAndSpent(boughtProduct, buyer);
 
-	}
+        // remove product from wishList
+        threadRemoveProductFromWishlist(boughtProduct);
 
-	private void threadSendEmail(Product boughtProduct) {
-		Thread threadEmail = new Thread() {
-			public void run() {
-				emailService.sendConfirmationEmailHtml(boughtProduct);
+        // thread to send email
+        threadSendEmail(boughtProduct);
 
-			}
-		};
-		threadEmail.start();
-	}
+        // Save order entity
+        threadSaveOrder(boughtProduct);
 
-	private void addNumberOfBuysAndSellsAndMoneySoldAndSpent(Product boughtProduct, Client buyer) {
-		Seller sel = boughtProduct.getProductOwner();
-		Double price = boughtProduct.getPrice();
+        return productRepo.save(boughtProduct);
 
-		buyer.addNumberOfBuys();
-		sel.addNumberOfSells();
+    }
 
-		buyer.addSpentMoneyWhenClientBuyAProduct(price);
-		sel.addSoldMoneyWhenSellerSellAProduct(price);
+    private void threadSendEmail(Product boughtProduct) {
+        Thread threadEmail = new Thread() {
+            public void run() {
+                emailService.sendConfirmationEmailHtml(boughtProduct);
 
-	}
+            }
+        };
+        threadEmail.start();
+    }
 
-	private void threadRemoveProductFromWishlist(Product boughtProduct) {
-		Thread threadRemove = new Thread() {
-			public void run() {
-				wishlistService.removeProductFromWishlistWhenIsSold(boughtProduct.getId());
-			}
-		};
-		threadRemove.start();
-	}
+    private void addNumberOfBuysAndSellsAndMoneySoldAndSpent(Product boughtProduct, Client buyer) {
+        Seller sel = boughtProduct.getProductOwner();
+        Double price = boughtProduct.getPrice();
 
-	private void threadSaveOrder(Product product) {
+        buyer.addNumberOfBuys();
+        sel.addNumberOfSells();
 
-		Thread threadSaveOrder = new Thread() {
-			public void run() {
+        buyer.addSpentMoneyWhenClientBuyAProduct(price);
+        sel.addSoldMoneyWhenSellerSellAProduct(price);
 
-				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-				Date date = new Date(System.currentTimeMillis());
-				String instant = sdf.format(date);
+    }
 
-				Order order = new Order(null, instant, product);
+    private void threadRemoveProductFromWishlist(Product boughtProduct) {
+        Thread threadRemove = new Thread() {
+            public void run() {
+                wishlistService.removeProductFromWishlistWhenIsSold(boughtProduct.getId());
+            }
+        };
+        threadRemove.start();
+    }
 
-				orderRepo.save(order);
-			}
-		};
-		threadSaveOrder.start();
+    private void threadSaveOrder(Product product) {
 
-	}
+        Thread threadSaveOrder = new Thread() {
+            public void run() {
+
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+                Date date = new Date(System.currentTimeMillis());
+                String instant = sdf.format(date);
+
+                Order order = new Order(null, instant, product);
+
+                orderRepo.save(order);
+            }
+        };
+        threadSaveOrder.start();
+
+    }
 
 }

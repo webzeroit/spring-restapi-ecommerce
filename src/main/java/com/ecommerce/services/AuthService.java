@@ -1,7 +1,6 @@
 package com.ecommerce.services;
 
-import java.util.Random;
-
+import com.ecommerce.domain.dto.TypeDTO;
 import com.ecommerce.domain.users.Client;
 import com.ecommerce.domain.users.Seller;
 import com.ecommerce.exceptions.ObjectNotFoundException;
@@ -12,94 +11,94 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.ecommerce.domain.dto.TypeDTO;
+import java.util.Random;
 
 @Service
 public class AuthService {
 
-	private Random rand = new Random();
+    private Random rand = new Random();
 
-	@Autowired
-	private ClientRepository clientRepository;
+    @Autowired
+    private ClientRepository clientRepository;
 
-	@Autowired
-	private SellerRepository sellerRepository;
+    @Autowired
+    private SellerRepository sellerRepository;
 
-	@Autowired
-	private BCryptPasswordEncoder pe;
+    @Autowired
+    private BCryptPasswordEncoder pe;
 
-	@Autowired
-	private EmailService emailService;
+    @Autowired
+    private EmailService emailService;
 
-	public void sendNewPassword(String email) {
+    public void sendNewPassword(String email) {
 
-		try {
-			Client cli = clientRepository.findByEmail(email);
-			String newPassword = newPassword();
-			cli.setPassword(pe.encode(newPassword));
-			clientRepository.save(cli);
-			threadSendEmail(cli.getEmail(), newPassword);
+        try {
+            Client cli = clientRepository.findByEmail(email);
+            String newPassword = newPassword();
+            cli.setPassword(pe.encode(newPassword));
+            clientRepository.save(cli);
+            threadSendEmail(cli.getEmail(), newPassword);
 
-		} catch (NullPointerException e) {
-			Seller sel = sellerRepository.findByEmail(email);
+        } catch (NullPointerException e) {
+            Seller sel = sellerRepository.findByEmail(email);
 
-			if (sel == null) {
-				throw new ObjectNotFoundException();
-			}
+            if (sel == null) {
+                throw new ObjectNotFoundException();
+            }
 
-			String newPassword = newPassword();
-			sel.setPassword(pe.encode(newPassword));
-			sellerRepository.save(sel);
-			threadSendEmail(sel.getEmail(), newPassword);
+            String newPassword = newPassword();
+            sel.setPassword(pe.encode(newPassword));
+            sellerRepository.save(sel);
+            threadSendEmail(sel.getEmail(), newPassword);
 
-		}
+        }
 
-	}
+    }
 
-	private void threadSendEmail(String email, String newPassword) {
-		Thread threadEmail = new Thread() {
-			public void run() {
-				emailService.sendNewPassword(email, newPassword);
+    private void threadSendEmail(String email, String newPassword) {
+        Thread threadEmail = new Thread() {
+            public void run() {
+                emailService.sendNewPassword(email, newPassword);
 
-			}
-		};
-		threadEmail.start();
-	}
+            }
+        };
+        threadEmail.start();
+    }
 
-	public TypeDTO getTypeOfUser() {
+    public TypeDTO getTypeOfUser() {
 
-		if (UserService.clientAuthenticated() != null) {
-			return new TypeDTO("Client");
-		} else if(UserService.sellerAuthenticated() != null) {
-			return new TypeDTO("Seller");
-		}else {
-			throw new ObjectNotFoundException();
-		}
+        if (UserService.clientAuthenticated() != null) {
+            return new TypeDTO("Client");
+        } else if (UserService.sellerAuthenticated() != null) {
+            return new TypeDTO("Seller");
+        } else {
+            throw new ObjectNotFoundException();
+        }
 
-	}
+    }
 
-	private String newPassword() {
-		char[] vet = new char[6];
+    private String newPassword() {
+        char[] vet = new char[6];
 
-		for (int i = 0; i < 6; i++) {
-			vet[i] = randomChar();
-		}
+        for (int i = 0; i < 6; i++) {
+            vet[i] = randomChar();
+        }
 
-		return new String(vet);
-	}
+        return new String(vet);
+    }
 
-	private char randomChar() {
-		int opt = rand.nextInt(3);
+    private char randomChar() {
+        int opt = rand.nextInt(3);
 
-		switch (opt) {
-		case 0:
+        switch (opt) {
+            case 0:
 
-			return (char) (rand.nextInt(10) + 48);
-		case 1:
-			return (char) (rand.nextInt(26) + 65);
-		default:
-			return (char) (rand.nextInt(26) + 97);
-		}
-	}
+                return (char) (rand.nextInt(10) + 48);
+            case 1:
+                return (char) (rand.nextInt(26) + 65);
+            default:
+                return (char) (rand.nextInt(26) + 97);
+        }
+    }
 
 }

@@ -1,9 +1,8 @@
 package com.ecommerce.repositories;
 
+import com.ecommerce.domain.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
-import com.ecommerce.domain.Order;
 
 
 @Repository
